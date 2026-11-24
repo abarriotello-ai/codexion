@@ -6,7 +6,7 @@
 /*   By: abarrio <abarrio@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/28 18:43:03 by abarrio           #+#    #+#             */
-/*   Updated: 2026/09/28 18:43:11 by abarrio          ###   ########.fr       */
+/*   Updated: 2026/09/28 19:42:21 by abarrio          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,44 +19,49 @@ static void	print_usage(void)
 		"number_of_compiles_required dongle_cooldown scheduler(fifo|edf)\n");
 }
 
-static int	parse_int_field(const char *s, int *out, long long max, int zero)
+static int	parse_int_field(const char *s, int *out, long long min,
+		long long max)
 {
 	long long	val;
 
 	if (!parse_number(s, &val, max))
 		return (0);
-	if (val == 0 && !zero)
+	if (val < min)
 		return (0);
 	*out = (int)val;
 	return (1);
 }
 
-static int	parse_ms_field(const char *s, long long *out, int zero)
+static int	parse_ms_field(const char *s, long long *out, long long min)
 {
 	if (!parse_number(s, out, MAX_MS))
 		return (0);
-	if (*out == 0 && !zero)
+	if (*out < min)
 		return (0);
 	return (1);
 }
 
+// Validates the 8 arguments one by one and fills cfg. On the first
+// invalid value it prints the usage on stderr and returns -1.
+// Ranges: 1..MAX_CODERS coders, burnout >= 1 ms, every other number >= 0.
 int	parse_args(int argc, char **argv, t_config *cfg)
 {
 	if (argc != 9)
 		return (print_usage(), -1);
-	if (!parse_int_field(argv[1], &cfg->n_coders, MAX_CODERS, 0))
+	if (!parse_int_field(argv[1], &cfg->n_coders, 1, MAX_CODERS))
 		return (print_usage(), -1);
-	if (!parse_ms_field(argv[2], &cfg->t_burnout, 0))
+	if (!parse_ms_field(argv[2], &cfg->t_burnout, 1))
 		return (print_usage(), -1);
 	if (!parse_ms_field(argv[3], &cfg->t_compile, 0))
 		return (print_usage(), -1);
-	if (!parse_ms_field(argv[4], &cfg->t_debug, 1))
+	if (!parse_ms_field(argv[4], &cfg->t_debug, 0))
 		return (print_usage(), -1);
-	if (!parse_ms_field(argv[5], &cfg->t_refactor, 1))
+	if (!parse_ms_field(argv[5], &cfg->t_refactor, 0))
 		return (print_usage(), -1);
-	if (!parse_int_field(argv[6], &cfg->compiles_required, INT_MAX, 1))
+	if (!parse_int_field(argv[6], &cfg->compiles_required, 0,
+			INT_MAX))
 		return (print_usage(), -1);
-	if (!parse_ms_field(argv[7], &cfg->dongle_cooldown, 1))
+	if (!parse_ms_field(argv[7], &cfg->dongle_cooldown, 0))
 		return (print_usage(), -1);
 	if (!parse_scheduler(argv[8], &cfg->scheduler))
 		return (print_usage(), -1);

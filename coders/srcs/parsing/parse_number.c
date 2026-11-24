@@ -12,6 +12,9 @@
 
 #include "coders.h"
 
+// Accepts digits only (no sign, no spaces, no empty string). It fails as
+// soon as the value exceeds max, which also rules out any overflow.
+// Returns 1 on success, 0 otherwise.
 int	parse_number(const char *s, long long *out, long long max)
 {
 	long long	val;
