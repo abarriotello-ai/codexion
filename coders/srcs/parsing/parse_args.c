@@ -43,14 +43,15 @@ static int	parse_ms_field(const char *s, long long *out, long long min)
 
 // Validates the 8 arguments one by one and fills cfg. On the first
 // invalid value it prints the usage on stderr and returns -1.
-// Ranges: 1..MAX_CODERS coders, burnout >= 1 ms, every other number >= 0.
+// Ranges: 1..MAX_CODERS coders, every other number >= 0 (0 coders is no
+// simulation, but a 0 ms time is a valid, if extreme, value).
 int	parse_args(int argc, char **argv, t_config *cfg)
 {
 	if (argc != 9)
 		return (print_usage(), -1);
 	if (!parse_int_field(argv[1], &cfg->n_coders, 1, MAX_CODERS))
 		return (print_usage(), -1);
-	if (!parse_ms_field(argv[2], &cfg->t_burnout, 1))
+	if (!parse_ms_field(argv[2], &cfg->t_burnout, 0))
 		return (print_usage(), -1);
 	if (!parse_ms_field(argv[3], &cfg->t_compile, 0))
 		return (print_usage(), -1);
